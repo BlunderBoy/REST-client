@@ -1,0 +1,58 @@
+Macarie Razvan Cristian, 322CB
+
+Am pornit de la scheletul laboratorului de HTTP insa am optat sa folosesc c++
+asa ca am modificat toate char* in std::string pentru ca e mai usor de folosit.
+In rest nu prea am folosit mecanisme OOP, dar m-am folosit de transmiterea prin
+referinta in cadrul unei functii (m-a salvat de zeci de & si *) si am creat si 
+un obiect sesiune, care tine token-ul JWT si cookie-ul.
+
+Nu am hardcodat adresa ip a serverului in tema ci fac un DNS lookup dupa adresa
+si tin minte adresa intr-o variabila globala. Fac asta pentru a evita problema 
+de timeout a serverului. Nu este exact o problema per se ca se inchide conexiunea
+la server si cel mai eficient mod ar fi fost sa verific de fiecare data daca 
+sunt conectat la server, insa eu dupa ce primesc input restabilesc conexiunea cu
+serverul si apoi trimit un request HTTP. Eu cum lucrez cu functii, decat sa 
+trimit ca argument la fiecare functie adresa ip, iau din variabila globala 
+valoarea.
+
+Ca JSON parser am folosit parserul lui nlohman(https://github.com/nlohmann/json),
+cel indicat si in enunt de altfel. L-am folosit pe acesta pentru ca 
+1. voiam sa folosesc o librarie, nu sa scriu eu una.
+2. e primul search result pe goole.
+3. dupa ce m-am uitat putin pe documentatie mi s-a parut super intuitiv si nu am
+mai cautat alta librarie.
+Librarie este intr-un singur header file.
+
+Folosesc functiile compute_GET/POST/DELETE_request ca sa-mi creez requestul dupa
+parametrii pe care ii primeste functia. Cand se primeste input de la tastatura
+se apeleaza functia cu acelasi nume care:
+1. verifica daca avem cookie/token dupa caz.
+2. isi creeaza requestul.
+3. trimite la server requestul.
+4. asteapta raspunsul serverului.
+5. printeaza frumos raspunul serverului.
+6. seteaza cookie/token dupa caz.
+
+Pentru error handling am tratat client-side erorile pe care le-ar da serverul
+daca nu demonstram accesul la librarie sau ca suntem logati. Pentru restul
+erorilor serverul o sa trimita sub forma de json un mesaj de eroare care apare
+la stdout si este usor de citit de catre utilizator. De exemplu, daca se trimite
+un request de GET pentru cartea cu id-ul "a", la stdout se afiseaza:
+
+--------------Raspuns---------------
+Header: 
+HTTP/1.1 400 Bad Request
+JSON:
+{
+  "error": "id is not int!"
+}
+------------------------------------
+
+Astfel utilizatorul stie ce eroare a facut cand a trimit comanda. 
+In plus nu se repeta promtul in caz de eroare.
+
+Toate ca toate mi-a placut destul de mult tema asta. E destul de dragut sa trimiti
+requesturi la un server care exista si sa primesti raspuns inapoi. Mai e super sa
+lucrezi si cu JSON-uri. Sper ca implementarea este destul de robusta, neavand 
+checker nu stiu ce modificari sa mai fac ca sa fie perfecta, si sper ca nu am 
+vreun typo in comenzi.
